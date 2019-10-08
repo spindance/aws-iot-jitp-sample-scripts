@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: MIT-0
 
 CA=${1:-root}
+COUNTRY=${2:-LU}
+LOCATION=${3:-Luxembourg}
+STATE=${4:-Luxembourg}
+ORG=${5:-AWS}
+ORGUNIT=${6:-Demo}
+CONFIG=${7:-./bin/openssl.config}
 
 if [[ -z "$AWS_ACCOUNT" ]]; then
 	echo "Please set the AWS_ACCOUNT environment variable"
@@ -11,8 +17,11 @@ if [[ -z "$AWS_ACCOUNT" ]]; then
 fi
 
 SUB=`aws iot get-registration-code | jq -r '.["registrationCode"]'`
-openssl req -new -key "$CA.ca.key" -out verificationCert.csr -subj "/CN=$SUB"
-openssl x509 -req -in verificationCert.csr -CA "$CA.ca.pem" -CAkey "$CA.ca.key" -CAcreateserial -out verificationCert.pem -days 500 -sha256
+openssl req -new -sha256 -key "$CA.ca.key" -nodes -out "$CA.ca.csr" -config "$CONFIG" -subj "/CN=$CN/C=$COUNTRY/L=$LOCATION/ST=$STATE/O=$ORG/OU=$ORGUNIT" -config "$CONFIG"
+openssl x509 -req -extfile "$CONFIG" -extensions v3_ca -in "$CA.ca.csr" -signkey "$CA.ca.key" -out "$CA.ca.pem" -days 500 
+openssl genrsa -out "verificationCert.key" 2048
+openssl req -new -key "verificationCert.key" -out "verificationCert.csr" -subj "/CN=$SUB/C=$COUNTRY/L=$LOCATION/ST=$STATE/O=$ORG/OU=$ORGUNIT"
+openssl x509 -req -in "verificationCert.csr" -CA "$CA.ca.pem" -CAkey "$CA.ca.key" -CAcreateserial -out "verificationCert.pem" -days 500 -sha256
 mkdir -p tmp
 sed "s%\${AWS_ACCOUNT}%$AWS_ACCOUNT%" etc/regfile.tmp  > tmp/regfile
 aws iot register-ca-certificate --ca-certificate "file://$CA.ca.pem" --verification-cert file://verificationCert.pem --set-as-active  --allow-auto-registration --registration-config file://tmp/regfile

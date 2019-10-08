@@ -113,5 +113,9 @@ Resources:
             Action:
               - "iot:Publish"
             Effect: Allow
-            Resource: { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/${iot:Certificate.Subject.CommonName}"]] }
+            Resource: 
+              - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/$aws/things/${iot:Certificate.Subject.CommonName}/*"]] }
+              - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/things/${iot:Certificate.Subject.CommonName}/diagnostics"]] }
+              - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/things/${iot:Certificate.Subject.CommonName}/readings"]] }
+              
 
