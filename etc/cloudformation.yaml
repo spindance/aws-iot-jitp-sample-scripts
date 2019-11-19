@@ -116,6 +116,7 @@ Resources:
             Resource: 
               - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/$aws/things/${iot:Certificate.Subject.CommonName}/*"]] }
               - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/things/${iot:Certificate.Subject.CommonName}/diagnostics"]] }
+              - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/register"]] }
               - { "Fn::Join" : [ "", ["arn:aws:iot:",{ "Fn::Sub": "${AWS::Region}" },":", { "Fn::Sub": "${AWS::AccountId}" }, ":topic/things/${iot:Certificate.Subject.CommonName}/readings"]] }
               
 
